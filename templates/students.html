@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Students</h3>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Name</th>
+        <th>Roll</th>
+        <th>Department</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for s in students %}
+    <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ s.roll_number }}</td>
+        <td>{{ s.department }}</td>
+        <td>
+            <img src="{{ s.image.url }}" width="60">
+        </td>
+        <td>
+            <a href="/update/{{ s.id }}/" class="btn btn-warning btn-sm">Edit</a>
+            <a href="/delete/{{ s.id }}/" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="/dashboard/" class="btn btn-secondary">Back</a>
+
+{% endblock %}

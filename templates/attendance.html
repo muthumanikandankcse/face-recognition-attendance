@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card p-4 shadow-lg text-center">
+
+        <h3 class="mb-3">🎥 Live Attendance</h3>
+
+        <!-- VIDEO -->
+        <div class="d-flex justify-content-center">
+            <video id="video" class="rounded shadow" width="600" autoplay></video>
+        </div>
+
+        <!-- STATUS -->
+        <div class="mt-3">
+            <h5 id="status" class="text-primary"></h5>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="mt-4">
+            <a href="/dashboard/" class="btn btn-secondary">⬅ Back</a>
+        </div>
+
+    </div>
+
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const statusText = document.getElementById('status');
+
+// START CAMERA
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream;
+});
+
+// CAPTURE FRAME
+setInterval(() => {
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = canvas.toDataURL('image/jpeg', 1.0);
+
+    fetch('/mark/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ image: imageData })
+    })
+    .then(res => res.json())
+    .then(data => {
+        statusText.innerText = data.message;
+    });
+
+}, 3000);
+
+
+// CSRF TOKEN
+function getCSRFToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken'))
+        .split('=')[1];
+}
+</script>
+
+{% endblock %}
